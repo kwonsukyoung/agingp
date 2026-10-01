@@ -1,13 +1,3 @@
-// Header scroll effect
-window.addEventListener('scroll', () => {
-    const header = document.getElementById('header');
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
-
 // Smooth scrolling for navigation links
 document.querySelectorAll('nav a').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
@@ -17,7 +7,7 @@ document.querySelectorAll('nav a').forEach(anchor => {
         
         if (targetSection) {
             window.scrollTo({
-                top: targetSection.offsetTop,
+                top: targetSection.offsetTop - 80, // account for fixed header height
                 behavior: 'smooth'
             });
         }
