@@ -253,3 +253,39 @@ footer {
         gap: 20px;
     }
 }
+
+/* Faculty Image Styles */
+.faculty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.faculty-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    text-align: center;
+}
+
+.faculty-card img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    object-position: top;
+}
+
+.faculty-info {
+    padding: 20px;
+}
+
+.faculty-info h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.faculty-info p {
+    font-size: 15px;
+    color: #666;
+}
