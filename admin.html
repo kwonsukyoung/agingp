@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - Welcome baby</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        .admin-table th {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-toggle {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .add-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .add-form input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .add-form button {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body style="background-color: #f5f5f5;">
+    
+    <div class="admin-container">
+        <h2>육아용품 대여 관리 (관리자용)</h2>
+        <p><a href="index.html">← 홈페이지로 돌아가기</a></p>
+
+        <div style="margin-top:2rem;">
+            <h3>새 물품 등록</h3>
+            <div class="add-form">
+                <input type="text" id="new-title" placeholder="물품명 (예: 타요버스)">
+                <input type="text" id="new-category" placeholder="카테고리 (예: 장난감)">
+                <button onclick="addNewItem()">등록하기</button>
+            </div>
+        </div>
+
+        <h3>물품 목록 및 대여 상태 관리</h3>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>물품명</th>
+                    <th>카테고리</th>
+                    <th>현재 상태</th>
+                    <th>상태 변경</th>
+                </tr>
+            </thead>
+            <tbody id="admin-item-list">
+                <!-- Admin items loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function renderAdminItems() {
+            const list = document.getElementById('admin-item-list');
+            list.innerHTML = '';
+            const items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                const isAvailable = item.status === 'available';
+                
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.title}</td>
+                    <td>${item.category}</td>
+                    <td><strong style="color: ${isAvailable ? '#2d6a4f' : '#7209b7'}">${isAvailable ? '대여 가능' : '대여 중'}</strong></td>
+                    <td>
+                        <button class="btn btn-toggle" onclick="toggleStatus(${item.id})">
+                            ${isAvailable ? '대여 중으로 변경' : '대여 가능으로 변경'}
+                        </button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        function toggleStatus(id) {
+            const items = JSON.parse(localStorage.getItem('welcomeBabyItems'));
+            const index = items.findIndex(i => i.id === id);
+            if (index !== -1) {
+                items[index].status = items[index].status === 'available' ? 'rented' : 'available';
+                localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
+                renderAdminItems();
+            }
+        }
+
+        function addNewItem() {
+            const title = document.getElementById('new-title').value.trim();
+            const category = document.getElementById('new-category').value.trim();
+
+            if (!title || !category) {
+                alert('물품명과 카테고리를 입력해주세요.');
+                return;
+            }
+
+            const items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
+            const newItem = {
+                id: Date.now(),
+                title: title,
+                category: category,
+                status: 'available',
+                image: 'https://images.unsplash.com/photo-1555252834-2e92c2a0db36?auto=format&fit=crop&q=80&w=400&h=300' // Default placeholder image
+            };
+
+            items.unshift(newItem);
+            localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
+            
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-category').value = '';
+            
+            renderAdminItems();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderAdminItems);
+    </script>
+</body>
+</html>
