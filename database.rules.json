@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "items": {
+      ".read": true,
+      ".write": true
+    },
+    "reviews": {
+      ".read": true,
+      ".write": true
+    },
+    "qna": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
