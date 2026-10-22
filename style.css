@@ -4,6 +4,7 @@
     --primary-color: #f7ede2; /* Soft beige/cream */
     --secondary-color: #f6bd60; /* Warm yellow/orange */
     --accent-color: #84a59d; /* Soft green */
+    --pink-color: #e5989b;
     --text-color: #333333;
     --bg-color: #ffffff;
     --card-bg: #faf9f7;
@@ -49,6 +50,7 @@ nav ul {
     list-style: none;
     display: flex;
     gap: 2rem;
+    flex-wrap: wrap;
 }
 
 nav a {
@@ -72,7 +74,7 @@ section {
 h2 {
     text-align: center;
     font-size: 2.2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     color: var(--text-color);
     position: relative;
 }
@@ -83,8 +85,14 @@ h2::after {
     width: 50px;
     height: 4px;
     background-color: var(--secondary-color);
-    margin: 10px auto 0;
+    margin: 10px auto 2rem;
     border-radius: 2px;
+}
+
+.section-sub {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
 }
 
 /* Hero Section */
@@ -103,7 +111,7 @@ h2::after {
 
 .hero-content h1 {
     font-size: 4rem;
-    color: #e5989b;
+    color: var(--pink-color);
     margin-bottom: 1rem;
 }
 
@@ -169,7 +177,7 @@ h2::after {
 }
 
 .highlight {
-    color: #e5989b;
+    color: var(--pink-color);
 }
 
 .note {
@@ -193,11 +201,12 @@ h2::after {
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     position: relative;
     cursor: pointer;
+    border: 2px solid #f3f0ec;
 }
 
 .item-image-wrapper {
     position: relative;
-    height: 200px;
+    height: 210px;
     background-color: #f0f0f0;
     overflow: hidden;
 }
@@ -216,7 +225,7 @@ h2::after {
 .item-hover-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(246, 189, 96, 0.9);
+    background-color: rgba(246, 189, 96, 0.92);
     color: white;
     display: flex;
     align-items: center;
@@ -260,8 +269,8 @@ h2::after {
     color: #7209b7;
 }
 
-/* Reviews Section */
-.review-form {
+/* Reviews & Q&A Forms */
+.review-form, .qna-form {
     background-color: var(--card-bg);
     padding: 2rem;
     border-radius: var(--border-radius);
@@ -269,37 +278,114 @@ h2::after {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    border: 2px solid #f2ebe1;
 }
 
-.review-form input, .review-form textarea {
+.review-form input[type="text"],
+.review-form textarea,
+.qna-form input[type="text"],
+.qna-form textarea {
     padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1rem;
+    background-color: #fff;
 }
 
-.review-form textarea {
+.review-form textarea,
+.qna-form textarea {
     resize: vertical;
     min-height: 100px;
 }
 
-.review-form button {
+.review-form button#review-submit-btn,
+.qna-form button#qna-submit-btn {
     background-color: var(--secondary-color);
     color: white;
     border: none;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
-.review-form button:hover {
-    background-color: #e5989b;
+.review-form button#review-submit-btn:hover,
+.qna-form button#qna-submit-btn:hover {
+    background-color: var(--pink-color);
 }
 
-.review-list {
+/* Photo Upload Controls */
+.photo-upload-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.photo-upload-box input[type="file"] {
+    display: none;
+}
+
+.photo-upload-label {
+    display: inline-block;
+    background-color: #fff;
+    border: 2px dashed var(--accent-color);
+    color: var(--accent-color);
+    padding: 0.65rem 1.2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.photo-upload-label:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.compression-badge {
+    font-size: 0.88rem;
+    color: #2d6a4f;
+    background-color: #d8f3dc;
+    padding: 0.35rem 0.8rem;
+    border-radius: 15px;
+    font-weight: 600;
+    display: none;
+}
+
+.photo-preview-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    width: fit-content;
+}
+
+.photo-preview-wrap img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.remove-photo-btn {
+    background-color: #ffccd5;
+    color: #c9184a;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Review List */
+.review-list, .qna-list {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -309,22 +395,91 @@ h2::after {
     background-color: white;
     padding: 1.5rem;
     border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     border-left: 5px solid var(--accent-color);
 }
 
-.review-header {
+.review-header, .qna-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
     font-size: 0.9rem;
     color: #777;
 }
 
-.reviewer-name {
+.reviewer-name, .qna-author {
     font-weight: 700;
     color: var(--text-color);
     font-size: 1.1rem;
+}
+
+.review-photo-display {
+    margin-top: 0.8rem;
+}
+
+.review-photo-display img {
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    object-fit: cover;
+}
+
+/* Q&A Item Styles */
+.qna-item {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border-left: 5px solid var(--secondary-color);
+}
+
+.qna-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-right: 8px;
+}
+
+.qna-waiting {
+    background-color: #fff3cd;
+    color: #b45309;
+}
+
+.qna-answered {
+    background-color: #d8f3dc;
+    color: #2d6a4f;
+}
+
+.qna-question-text {
+    font-size: 1.05rem;
+    color: #333;
+    white-space: pre-wrap;
+    margin-bottom: 0.5rem;
+}
+
+.qna-answer-box {
+    margin-top: 1rem;
+    background-color: var(--primary-color);
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--pink-color);
+}
+
+.qna-answer-title {
+    font-weight: 700;
+    color: #c9184a;
+    font-size: 0.92rem;
+    margin-bottom: 0.3rem;
+}
+
+.qna-answer-text {
+    color: #333;
+    white-space: pre-wrap;
+    font-size: 0.98rem;
 }
 
 /* Location Section */
@@ -367,7 +522,8 @@ footer {
 .admin-link {
     color: var(--accent-color);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
     margin-top: 10px;
     display: inline-block;
 }
@@ -380,7 +536,13 @@ footer {
 @media (max-width: 768px) {
     header {
         flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+
+    nav ul {
         gap: 1rem;
+        justify-content: center;
     }
     
     .hero-content h1 {

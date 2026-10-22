@@ -7,93 +7,308 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .admin-container {
-            max-width: 800px;
-            margin: 5rem auto;
+            max-width: 960px;
+            margin: 3rem auto;
             padding: 2rem;
             background: white;
             border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
+        .admin-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px dashed #eee;
+        }
         .admin-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
         .admin-table th, .admin-table td {
-            padding: 1rem;
+            padding: 0.85rem;
             border-bottom: 1px solid #eee;
             text-align: left;
+            vertical-align: middle;
         }
         .admin-table th {
             background-color: #f9f9f9;
         }
+        .thumb-img {
+            width: 55px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 0.85rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.88rem;
         }
         .btn-toggle {
             background-color: var(--secondary-color);
             color: white;
         }
-        .add-form {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+        .btn-delete {
+            background-color: #ffccd5;
+            color: #c9184a;
+            margin-left: 4px;
         }
-        .add-form input {
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            flex: 1;
-            min-width: 150px;
-        }
-        .add-form button {
+        .btn-answer {
             background-color: var(--accent-color);
             color: white;
-            padding: 0.5rem 1rem;
+        }
+        .add-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+        .add-form-row {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .add-form input[type="text"] {
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 180px;
+        }
+        .btn-submit {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .db-status-bar {
+            background-color: #f7ede2;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .qna-admin-card {
+            background: #faf9f7;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .qna-admin-reply {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+        .qna-admin-reply textarea {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            min-height: 60px;
         }
     </style>
 </head>
 <body style="background-color: #f5f5f5;">
     
     <div class="admin-container">
-        <h2>육아용품 대여 관리 (관리자용)</h2>
-        <p><a href="index.html">← 홈페이지로 돌아가기</a></p>
+        <h2>육아용품 &amp; Q&amp;A 통합 관리자 페이지</h2>
+        <p><a href="index.html" style="color: var(--accent-color); font-weight: bold;">← 홈페이지 메인으로 돌아가기</a></p>
 
-        <div style="margin-top:2rem;">
-            <h3>새 물품 등록</h3>
+        <!-- 파이어베이스 연결 및 용량 절약 안내 -->
+        <div class="db-status-bar">
+            <div>
+                <strong>🔥 Firebase 프로젝트:</strong> <code>sukyoung-7b1e6</code>
+                <span id="db-conn-badge" style="margin-left:8px; padding:2px 8px; border-radius:10px; background:#d8f3dc; color:#2d6a4f; font-weight:bold;">초절약 모드 작동중</span>
+                <div style="font-size: 0.82rem; color: #666; margin-top: 4px;">
+                    * 사진 업로드 시 자동으로 <strong>약 10~20KB(초저용량)</strong>로 압축되어 1GB 무료 한도로도 수만 장 저장이 가능합니다.
+                </div>
+            </div>
+            <button class="btn" style="background:#fff; border:1px solid #ccc;" onclick="changeDbUrl()">DB 주소 설정</button>
+        </div>
+
+        <!-- 1. 새 물품 및 사진 등록 -->
+        <div class="admin-section">
+            <h3>1. 새 대여 물품 등록 (사진 초경량 압축 업로드)</h3>
             <div class="add-form">
-                <input type="text" id="new-title" placeholder="물품명 (예: 타요버스)">
-                <input type="text" id="new-category" placeholder="카테고리 (예: 장난감)">
-                <button onclick="addNewItem()">등록하기</button>
+                <div class="add-form-row">
+                    <input type="text" id="new-title" placeholder="물품명 (예: 타요버스 미끄럼틀)">
+                    <input type="text" id="new-category" placeholder="카테고리 (예: 장난감 / 육아용품)">
+                </div>
+
+                <div class="photo-upload-box">
+                    <label for="new-item-photo" class="photo-upload-label">
+                        📷 물품 사진 선택 (자동 용량 최소화)
+                    </label>
+                    <input type="file" id="new-item-photo" accept="image/*" onchange="previewItemPhoto(event)">
+                    <span id="item-photo-info" class="compression-badge"></span>
+                </div>
+
+                <div id="item-photo-preview-wrap" class="photo-preview-wrap" style="display: none;">
+                    <img id="item-photo-preview" src="" alt="물품 사진 미리보기">
+                    <button type="button" class="remove-photo-btn" onclick="clearItemPhoto()">사진 취소 ✕</button>
+                </div>
+
+                <button id="add-item-btn" class="btn-submit" onclick="addNewItem()">물품 등록하기</button>
             </div>
         </div>
 
-        <h3>물품 목록 및 대여 상태 관리</h3>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>물품명</th>
-                    <th>카테고리</th>
-                    <th>현재 상태</th>
-                    <th>상태 변경</th>
-                </tr>
-            </thead>
-            <tbody id="admin-item-list">
-                <!-- Admin items loaded here -->
-            </tbody>
-        </table>
+        <!-- 2. 물품 목록 및 대여 상태 관리 -->
+        <div class="admin-section">
+            <h3>2. 물품 목록 및 대여 상태 실시간 변경</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>사진</th>
+                        <th>물품명</th>
+                        <th>카테고리</th>
+                        <th>현재 상태</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-item-list">
+                    <!-- Admin items loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. Q&A 질문 답변 관리 -->
+        <div class="admin-section">
+            <h3>3. 방문자 Q&amp;A 질문 관리 및 답변 달기</h3>
+            <p style="font-size:0.9rem; color:#666; margin-bottom:1rem;">방문자가 남긴 질문에 답변을 등록하면 홈페이지 Q&amp;A 코너에 즉시 반영됩니다.</p>
+            <div id="admin-qna-list">
+                <!-- Q&A list loaded here -->
+            </div>
+        </div>
+
+        <!-- 4. 이용후기 관리 (용량 정리용 삭제 기능) -->
+        <div class="admin-section">
+            <h3>4. 이용후기 관리 (불필요한 사진/후기 정리)</h3>
+            <div id="admin-review-list" style="margin-top:1rem;">
+                <!-- Review list loaded here -->
+            </div>
+        </div>
     </div>
 
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script>
+        let compressedNewItemPhoto = null;
+
+        function objectToArray(obj) {
+            if (!obj) return [];
+            if (Array.isArray(obj)) return obj.filter(Boolean);
+            return Object.keys(obj).map(key => ({
+                ...obj[key],
+                id: obj[key].id || key
+            })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // DB 주소 직접 설정 (리전이 다른 경우 대비)
+        function changeDbUrl() {
+            const current = localStorage.getItem('customFirebaseDbUrl') || DEFAULT_DB_URL;
+            const input = prompt(
+                '파이어베이스 실시간 데이터베이스 주소를 입력하세요.\n(콘솔의 Realtime Database 상단 주소 복사)',
+                current
+            );
+            if (input && input.trim()) {
+                localStorage.setItem('customFirebaseDbUrl', input.trim().replace(/\/$/, ''));
+                location.reload();
+            }
+        }
+
+        // 물품 사진 선택 시 초경량 압축 미리보기
+        async function previewItemPhoto(event) {
+            const file = event.target.files[0];
+            const infoBadge = document.getElementById('item-photo-info');
+            const previewWrap = document.getElementById('item-photo-preview-wrap');
+            const previewImg = document.getElementById('item-photo-preview');
+
+            if (!file) {
+                clearItemPhoto();
+                return;
+            }
+
+            try {
+                infoBadge.style.display = 'inline-block';
+                infoBadge.textContent = '초경량 압축 중...';
+
+                // 가로/세로 최대 360px, 품질 0.5 적용 (약 10~20KB)
+                const result = await compressImageFile(file, 360, 0.5);
+                compressedNewItemPhoto = result.dataUrl;
+
+                previewImg.src = result.dataUrl;
+                previewWrap.style.display = 'flex';
+                infoBadge.textContent = `원본 ${result.originalSizeKB}KB ➔ 압축 ${result.compressedSizeKB}KB (서버 용량 98% 이상 절약!)`;
+            } catch (e) {
+                alert('사진 압축 중 오류가 발생했습니다.');
+                clearItemPhoto();
+            }
+        }
+
+        function clearItemPhoto() {
+            compressedNewItemPhoto = null;
+            document.getElementById('new-item-photo').value = '';
+            document.getElementById('item-photo-info').style.display = 'none';
+            document.getElementById('item-photo-preview-wrap').style.display = 'none';
+        }
+
+        // 초기 데이터 불러오기
+        async function loadAdminData() {
+            try {
+                const [remoteItems, remoteQnA, remoteReviews] = await Promise.all([
+                    fetchFromDB('items', 50),
+                    fetchFromDB('qna', 30),
+                    fetchFromDB('reviews', 25)
+                ]);
+
+                if (remoteItems) {
+                    localStorage.setItem('welcomeBabyItems', JSON.stringify(objectToArray(remoteItems)));
+                }
+                if (remoteQnA) {
+                    localStorage.setItem('welcomeBabyQnA', JSON.stringify(objectToArray(remoteQnA)));
+                }
+                if (remoteReviews) {
+                    localStorage.setItem('welcomeBabyReviews', JSON.stringify(objectToArray(remoteReviews)));
+                }
+            } catch (e) {
+                console.warn('DB 조회 참고:', e);
+            }
+
+            renderAdminItems();
+            renderAdminQnA();
+            renderAdminReviews();
+        }
+
+        // 1. 물품 목록 렌더링
         function renderAdminItems() {
             const list = document.getElementById('admin-item-list');
             list.innerHTML = '';
@@ -102,60 +317,202 @@
             items.forEach(item => {
                 const tr = document.createElement('tr');
                 const isAvailable = item.status === 'available';
-                
+
                 tr.innerHTML = `
-                    <td>${item.id}</td>
-                    <td>${item.title}</td>
-                    <td>${item.category}</td>
+                    <td><img src="${item.image}" class="thumb-img" alt="물품"></td>
+                    <td><strong>${escapeHtml(item.title)}</strong></td>
+                    <td>${escapeHtml(item.category)}</td>
                     <td><strong style="color: ${isAvailable ? '#2d6a4f' : '#7209b7'}">${isAvailable ? '대여 가능' : '대여 중'}</strong></td>
                     <td>
-                        <button class="btn btn-toggle" onclick="toggleStatus(${item.id})">
+                        <button class="btn btn-toggle" onclick="toggleStatus('${item.id}')">
                             ${isAvailable ? '대여 중으로 변경' : '대여 가능으로 변경'}
                         </button>
+                        <button class="btn btn-delete" onclick="deleteItem('${item.id}')">삭제</button>
                     </td>
                 `;
                 list.appendChild(tr);
             });
         }
 
-        function toggleStatus(id) {
-            const items = JSON.parse(localStorage.getItem('welcomeBabyItems'));
-            const index = items.findIndex(i => i.id === id);
-            if (index !== -1) {
-                items[index].status = items[index].status === 'available' ? 'rented' : 'available';
-                localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
-                renderAdminItems();
-            }
-        }
-
-        function addNewItem() {
+        async function addNewItem() {
             const title = document.getElementById('new-title').value.trim();
             const category = document.getElementById('new-category').value.trim();
+            const btn = document.getElementById('add-item-btn');
 
             if (!title || !category) {
                 alert('물품명과 카테고리를 입력해주세요.');
                 return;
             }
 
-            const items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
+            btn.disabled = true;
+            btn.textContent = '저장 중...';
+
             const newItem = {
-                id: Date.now(),
+                id: 'item_' + Date.now(),
                 title: title,
                 category: category,
                 status: 'available',
-                image: 'https://images.unsplash.com/photo-1555252834-2e92c2a0db36?auto=format&fit=crop&q=80&w=400&h=300' // Default placeholder image
+                image: compressedNewItemPhoto || 'https://images.unsplash.com/photo-1555252834-2e92c2a0db36?auto=format&fit=crop&q=80&w=400&h=300',
+                createdAt: Date.now()
             };
 
+            try {
+                await writeToDB(`items/${newItem.id}`, newItem);
+            } catch (e) {
+                console.warn('DB 저장 오류 (로컬에 우선 저장):', e);
+            }
+
+            const items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
             items.unshift(newItem);
             localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
-            
+
             document.getElementById('new-title').value = '';
             document.getElementById('new-category').value = '';
-            
+            clearItemPhoto();
+            btn.disabled = false;
+            btn.textContent = '물품 등록하기';
+
             renderAdminItems();
         }
 
-        document.addEventListener('DOMContentLoaded', renderAdminItems);
+        async function toggleStatus(id) {
+            const items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
+            const index = items.findIndex(i => String(i.id) === String(id));
+            if (index !== -1) {
+                const newStatus = items[index].status === 'available' ? 'rented' : 'available';
+                items[index].status = newStatus;
+                localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
+                renderAdminItems();
+
+                try {
+                    await updateInDB(`items/${id}`, { status: newStatus });
+                } catch (e) {
+                    console.warn('상태 업데이트 오류:', e);
+                }
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('이 물품을 삭제하시겠습니까? (서버 용량도 함께 확보됩니다)')) return;
+            let items = JSON.parse(localStorage.getItem('welcomeBabyItems')) || [];
+            items = items.filter(i => String(i.id) !== String(id));
+            localStorage.setItem('welcomeBabyItems', JSON.stringify(items));
+            renderAdminItems();
+
+            try {
+                await removeFromDB(`items/${id}`);
+            } catch (e) {
+                console.warn('물품 삭제 오류:', e);
+            }
+        }
+
+        // 2. Q&A 답변 관리
+        function renderAdminQnA() {
+            const container = document.getElementById('admin-qna-list');
+            container.innerHTML = '';
+            const qnaList = JSON.parse(localStorage.getItem('welcomeBabyQnA')) || [];
+
+            if (qnaList.length === 0) {
+                container.innerHTML = '<p style="color:#888;">등록된 질문이 없습니다.</p>';
+                return;
+            }
+
+            qnaList.forEach(item => {
+                const hasAnswer = item.answer && item.answer.trim() !== '';
+                const div = document.createElement('div');
+                div.className = 'qna-admin-card';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span class="qna-badge ${hasAnswer ? 'qna-answered' : 'qna-waiting'}">${hasAnswer ? '답변 완료' : '답변 대기'}</span>
+                            <strong>${escapeHtml(item.name)}</strong> <span style="color:#888; font-size:0.85rem;">(${escapeHtml(item.date || '')})</span>
+                        </div>
+                        <button class="btn btn-delete" onclick="deleteQnA('${item.id}')">질문 삭제</button>
+                    </div>
+                    <p style="margin-top:0.5rem; font-weight:500;">Q. ${escapeHtml(item.question)}</p>
+                    <div class="qna-admin-reply">
+                        <textarea id="answer-input-${item.id}" placeholder="답변을 입력하세요...">${escapeHtml(item.answer || '')}</textarea>
+                        <button class="btn btn-answer" onclick="saveAnswer('${item.id}')">답변 저장</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function saveAnswer(id) {
+            const textarea = document.getElementById(`answer-input-${id}`);
+            if (!textarea) return;
+            const answerText = textarea.value.trim();
+
+            const qnaList = JSON.parse(localStorage.getItem('welcomeBabyQnA')) || [];
+            const index = qnaList.findIndex(q => String(q.id) === String(id));
+            if (index !== -1) {
+                qnaList[index].answer = answerText;
+                localStorage.setItem('welcomeBabyQnA', JSON.stringify(qnaList));
+                renderAdminQnA();
+
+                try {
+                    await updateInDB(`qna/${id}`, { answer: answerText });
+                    alert('답변이 저장되었습니다!');
+                } catch (e) {
+                    alert('로컬에 답변이 저장되었습니다. (파이어베이스 규칙을 확인해주세요)');
+                }
+            }
+        }
+
+        async function deleteQnA(id) {
+            if (!confirm('이 질문을 삭제하시겠습니까?')) return;
+            let qnaList = JSON.parse(localStorage.getItem('welcomeBabyQnA')) || [];
+            qnaList = qnaList.filter(q => String(q.id) !== String(id));
+            localStorage.setItem('welcomeBabyQnA', JSON.stringify(qnaList));
+            renderAdminQnA();
+
+            try {
+                await removeFromDB(`qna/${id}`);
+            } catch (e) {}
+        }
+
+        // 3. 후기 관리 (용량 정리용)
+        function renderAdminReviews() {
+            const container = document.getElementById('admin-review-list');
+            container.innerHTML = '';
+            const reviews = JSON.parse(localStorage.getItem('welcomeBabyReviews')) || [];
+
+            if (reviews.length === 0) {
+                container.innerHTML = '<p style="color:#888;">등록된 후기가 없습니다.</p>';
+                return;
+            }
+
+            reviews.forEach(rev => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:0.7rem; background:#faf9f7; border-radius:10px; margin-bottom:0.5rem;';
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:0.8rem;">
+                        ${rev.photo ? `<img src="${rev.photo}" class="thumb-img" alt="후기사진">` : ''}
+                        <div>
+                            <strong>${escapeHtml(rev.name)}</strong> <span style="font-size:0.8rem; color:#888;">${escapeHtml(rev.date || '')}</span>
+                            <div style="font-size:0.9rem;">${escapeHtml(rev.content)}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-delete" onclick="deleteReview('${rev.id}')">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function deleteReview(id) {
+            if (!confirm('이 후기를 삭제하여 서버 용량을 정리하시겠습니까?')) return;
+            let reviews = JSON.parse(localStorage.getItem('welcomeBabyReviews')) || [];
+            reviews = reviews.filter(r => String(r.id) !== String(id));
+            localStorage.setItem('welcomeBabyReviews', JSON.stringify(reviews));
+            renderAdminReviews();
+
+            try {
+                await removeFromDB(`reviews/${id}`);
+            } catch (e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAdminData);
     </script>
 </body>
 </html>
